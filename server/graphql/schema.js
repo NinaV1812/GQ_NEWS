@@ -6,18 +6,23 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    addUser(userInput: UserInput): User!
+    signUp(fields: AuthInput!): User!
+    authUser(fields: AuthInput!): User!
   }
 
   type User {
     _id: ID!
     email: String!
-    password: String!
+    password: String
+    name: String
+    lastname: String
+    token: String
   }
 
-  input UserInput {
-    email: String!
-    password: String!
+  input AuthInput {
+    email: String
+    password: String
   }
 `;
+
 module.exports = typeDefs;

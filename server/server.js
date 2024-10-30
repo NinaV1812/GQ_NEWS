@@ -4,19 +4,9 @@ const { mongoose } = require("mongoose");
 
 const typeDefs = require("./graphql/schema");
 const { Query } = require("./graphql/resolvers/query");
-const app = express();
+const { Mutation } = require("./graphql/resolvers/mutation");
 
-// const server = new ApolloServer({
-//   typeDefs,
-//   resolvers: {
-//     Query,
-//   },
-// });
-// server.applyMiddleware({ app });
-// const PORT = process.env.PORT || 5001;
-// app.listen(PORT, () => {
-//   console.log(`Running running on port ${PORT}`);
-// });
+const app = express();
 mongoose
   .connect(
     `mongodb+srv://graphqluser:Testing123@cluster0.8krh8.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`,
@@ -38,6 +28,7 @@ const startServer = async () => {
     typeDefs,
     resolvers: {
       Query,
+      Mutation,
     },
   });
 
