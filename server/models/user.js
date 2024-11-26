@@ -1,7 +1,8 @@
 const { mongoose } = require("mongoose");
 const validator = require("validator");
-const bcypt = require("bcrypt");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 require("dotenv").config();
 const SALT_I = 10;
 const userSchema = mongoose.Schema({
@@ -34,9 +35,9 @@ const userSchema = mongoose.Schema({
 userSchema.pre("save", function (next) {
   var user = this;
   if (user.isModified("password")) {
-    bcypt.genSalt(SALT_I, function (err, salt) {
+    bcrypt.genSalt(SALT_I, function (err, salt) {
       if (err) return next(err);
-      bcypt.hash(user.password, salt, (err, hash) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
         if (err) return next(err);
         user.password = hash;
       });
@@ -45,6 +46,17 @@ userSchema.pre("save", function (next) {
     next();
   }
 });
+
+// userSchema.methods.comparePasswords = (candifatePassword)=> {
+//   var user = this;
+//   return bcypt.compare(candifatePassword, user.password).then((result)=> {return result})
+// }
+userSchema.methods.comparePassword = function(candidatePassword){
+  var user = this;
+  return bcrypt.compare(candidatePassword,user.password).then(function(result){
+      return result
+  });
+}
 
 userSchema.methods.generateToken = async () => {
   var user = this;
