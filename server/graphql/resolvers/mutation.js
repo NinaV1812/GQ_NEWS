@@ -8,18 +8,19 @@ const {
 module.exports = {
   Mutation: {
     signUp: async (parent, args, context, info) => {
+      console.log('THE SHIT IS CALLED' )
       try {
         const user = new User({
           email: args.fields.email,
           password: args.fields.password,
         });
+
         const getToken = await user.generateToken();
         if (!getToken) {
           throw new AuthenticationError("Something is wrong");
         }
-        const result = await user.save();
-        return { ...result._doc };
-      } catch (e) {
+        return { ...getToken._doc}
+      } catch (err) {
         if (err.code === 11000) {
           throw new AuthenticationError("Duplicated email");
         }

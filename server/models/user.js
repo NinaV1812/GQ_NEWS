@@ -7,7 +7,7 @@ require("dotenv").config();
 const SALT_I = 10;
 const userSchema = mongoose.Schema({
   email: {
-    type: String,
+    type:String,
     required: true,
     trim: true,
     unique: true,
@@ -32,18 +32,36 @@ const userSchema = mongoose.Schema({
   },
 });
 
-userSchema.pre("save", function (next) {
+// userSchema.pre("save", function (next) {
+//   var user = this;
+//   if (user.isModified("password")) {
+//     bcrypt.genSalt(SALT_I, function (err, salt) {
+//       if (err) return next(err);
+//       bcrypt.hash(user.password, salt, (err, hash) => {
+//         if (err) return next(err);
+//         user.password = hash;
+//       });
+//     });
+//   } else {
+//     next();
+//   }
+// });
+
+userSchema.pre('save',function(next){
   var user = this;
-  if (user.isModified("password")) {
-    bcrypt.genSalt(SALT_I, function (err, salt) {
-      if (err) return next(err);
-      bcrypt.hash(user.password, salt, (err, hash) => {
-        if (err) return next(err);
-        user.password = hash;
-      });
-    });
-  } else {
-    next();
+
+  if(user.isModified('password')){
+      bcrypt.genSalt(SALT_I,function(err,salt){
+          if(err) return next(err);
+
+          bcrypt.hash(user.password,salt,function(err,hash){
+              if(err) return next(err);
+              user.password = hash;
+              next();
+          });
+      })
+  } else{
+      next()
   }
 });
 
@@ -58,14 +76,35 @@ userSchema.methods.comparePassword = function(candidatePassword){
   });
 }
 
-userSchema.methods.generateToken = async () => {
+// userSchema.methods.generateToken = async () => {
+//   var user = this;
+//   var token = jwt.sign({_id:user._id,email:user.email }, process.env.SECRET, {
+//     expiresIn: "7d",
+//   });
+//   user.token = token;
+//   return user.save();
+// };
+
+// userSchema.methods.generateToken = async function () {
+//   var user = this;
+//   var token = jwt.sign({ _id: user._id, email: user.email }, process.env.SECRET, {
+//     expiresIn: "7d",
+//   });
+//   user.token = token;
+//   await user.save(); 
+//   return token; 
+// };
+
+userSchema.methods.generateToken = async function(){
   var user = this;
-  var token = jwt.sign({ email: user.email }, process.env.SECRET, {
-    expiresIn: "7d",
+
+  var token = jwt.sign({_id:user._id,email:user.email},process.env.SECRET,{
+      expiresIn:'7d'
   });
+
   user.token = token;
-  return user;
-};
+  return user.save();
+}
 
 const User = mongoose.model("User", userSchema);
 module.exports = { User };
